@@ -1,17 +1,27 @@
-# Verifica se o argumento $1 (diretório de dados) foi fornecido
-if [ -z "$1" ]; then
-    echo "Erro: Por favor, forneça o caminho para o modelo em .nemo."
-    exit 1
-fi
+#!/bin/bash
 
-# Verifica se o argumento $2 foi fornecido
-if [ -z "$2" ]; then
-    echo "Erro: Por favor, forneça o nome/path para o modelo em .riva."
+# Verifica se foi fornecido o argumento para o diretório de dados NEMO
+if [ -z "$1" ]; then
+    echo "Erro: Por favor, forneça o caminho para o modelo (.nemo)."
     exit 1
 fi
 
 nemo_file_path="$1"
-riva_file_path="$2"
 
+# Obtém o nome do diretório 
+nemo_name=$(basename "$nemo_file_path" .nemo)
+
+# Se o segundo argumento não foi fornecido, cria o nome do arquivo RIVA baseado no nome do modelo .nemo
+if [ -z "$2" ]; then
+    # Define o caminho e nome do arquivo RIVA baseado no nome do diretório NEMO
+    riva_model="$(realpath "$(dirname "$nemo_file_path")")/$nemo_name.riva"
+
+else
+    # Se o segundo argumento foi fornecido, armazena o caminho do arquivo RIVA diretamente
+    riva_model="$(realpath "$2")/$nemo_name.riva"
+    
+fi
+
+echo "Path do modelo riva: $riva_model"
 # Se quiser passar --key=nemotoriva como argumento
-nemo2riva --out $riva_file_path $nemo_file_path
+nemo2riva --out "$riva_model" "$nemo_file_path"
